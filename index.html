@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="./index.js"></script>
+    <meta charset="utf-8">
+    <title>ok</title>
+
+  <style>
+    .landingPage {
+      display:flex;
+      flex-wrap: wrap;   
+      justify-content: center;
+    }
+    .title {
+      width: 50%;
+    }
+    #firstTitle {
+      font-size: 5.5em;
+      margin-bottom: 0.3em;
+    }
+    #secondTitle {
+      font-size: 2.0em;
+    }
+    #container {
+      margin-left: 10px;
+      padding: 40px;
+    background-color: rgba(223, 234, 250, 0.7);
+    width: 25em;
+    }
+    #from #dropdownOne {
+      width: 350px;
+      padding: 10px;
+      background: #8487e8;
+      font-size: 16px;
+    }
+    #to #dropdownTwo {
+      width: 350px;
+      padding: 10px;
+      background: #8487e8;
+      font-size: 16px;
+    }
+    #initialAmount {
+      width: 320px;
+
+    }
+    #result {
+      padding:10px;
+      width: 320px;
+      background: white;
+    }
+    
+    @media screen and (min-width: 1700px) {
+      #firstTitle {
+        font-size: 6em;
+        margin-bottom: 0.3em;
+      }
+      #secondTitle {
+        font-size: 3.0em;
+      }
+
+    }
+    @media screen and (max-width: 900px) {
+      #firstTitle {
+        font-size: 4em;
+        margin-bottom: 0.3em;
+      }
+      #secondTitle {
+        font-size: 2.0em;
+      }
+
+    }
+    @media screen and (max-width: 360px) {
+      #firstTitle {
+        font-size: 31px;
+        margin-bottom: 0.3em;
+      }
+      #secondTitle {
+        font-size: 1.0em;
+      }
+
+    }
+  </style>
+    </head>
+  <div class="landingPage">
+    <div class="title">
+        <h1 id = "firstTitle">Money Exchangers</h1>
+        <h2 id = "secondTitle">Exchanging currency made easy with low fees and a simple transfer process, which lets you exchange with zero hassles!</h2>
+    </div>
+    <div>
+      <div id='container'>
+        <h1>Enter Currency</h1>
+        <form id='myForm'>
+          <div id='from'>
+            <div>
+              <select onchange='getSymbol1()' id="dropdownOne">
+                  <!-- `<option value=${single[i]}>` + single[i] + "</option>") -->
+              </select>
+            </div>
+            <input id='initialAmount' name="quantity" type='number' step="0.01" min="0" value=0.00>
+          </div>
+          <div id='to'>
+            <div>
+              <select onchange='getSymbol2()' id="dropdownTwo"></select>
+            </div>
+            <div id='result'>0</div>
+          </div>
+          <button id='getAmount'>Convert</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  </body>
+
+
+
+  <script>
+      var single
+
+// Convert Endpoint
+let access_key = '527b1d5b1b4abc505a3aca95163744fa';
+
+// define from currency, to currency, and amount
+let from = 'CAD';
+let to = 'USD';
+let amount = 0;
+
+const request = () => $.ajax({
+  url: 'https://data.fixer.io/api/convert?access_key=' + access_key +'&from=' + from + '&to=' + to + '&amount=' + amount,
+  dataType: 'jsonp',
+  success: function(json) {
+    // access the conversion result in json.result
+    // console.log(json.result.toFixed(2));
+    if (amount <= 0) {
+      document.getElementById('result').innerHTML = '0'
+    } else {
+      document.getElementById('result').innerHTML = (json.result.toFixed(2))
+
+    }
+  }
+});
+
+function getSymbol1() {
+  let x = document.getElementById("dropdownOne").value
+  from = x
+  request()
+  return x
+}
+
+function getSymbol2() {
+  let x = document.getElementById("dropdownTwo").value
+  to = x
+  request()
+  return x
+}
+
+$(document).ready(function () {
+  $('#myForm').on('submit', function(e) {
+      e.preventDefault();
+      let x = document.getElementById("initialAmount").value
+      amount = x * 1.1
+      request()
+      return x
+  });
+})
+
+fetch ('http://data.fixer.io/api/symbols?access_key=527b1d5b1b4abc505a3aca95163744fa&format=1')
+  .then(result => {
+    return result.json();
+  })
+  .then(data => {
+    single = (JSON.stringify(data.symbols)).split(',')
+    let symbolKeys = Object.keys(data.symbols)
+    let symbolValues = Object.values(data.symbols)
+    //add to drop menu
+    for (var i = 0; i < single.length - 1; i++) {
+      if (symbolKeys[i] === 'CAD') {
+        $("#dropdownOne").append(`<option selected value=${symbolKeys[i]}>` + symbolKeys[i] + ': ' + symbolValues[i] + "</option>");
+        $("#dropdownTwo").append(`<option value=${symbolKeys[i]}>` + symbolKeys[i] + ': ' + symbolValues[i] + "</option>");
+      } else if (symbolKeys[i] === 'USD') {
+        $("#dropdownTwo").append(`<option selected value=${symbolKeys[i]}>` + symbolKeys[i] + ': ' + symbolValues[i] + "</option>");
+        $("#dropdownOne").append(`<option value=${symbolKeys[i]}>` + symbolKeys[i] + ': ' + symbolValues[i] + "</option>");
+      } else {
+        $("#dropdownOne").append(`<option value=${symbolKeys[i]}>` + symbolKeys[i] + ': ' + symbolValues[i] + "</option>");
+        $("#dropdownTwo").append(`<option value=${symbolKeys[i]}>` + symbolKeys[i] + ': ' + symbolValues[i] + "</option>");
+
+      }
+    }
+
+  })
+  .catch(error => console.log(error));
+
+// execute the conversion using the "convert" endpoint:
+
+  </script>
+</html>
